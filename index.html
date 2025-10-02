@@ -7,147 +7,325 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
-    .hidden { display: none; }
-    .error { color: #ef4444; }
-    .success { color: #10b981; }
-    .progress-bar { transition: width 0.3s ease; }
+    .hidden { display: none !important; }
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .card-shadow { box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+    .btn-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .btn-gradient:hover { background: linear-gradient(135deg, #5568d3 0%, #63408a 100%); }
+    .loader { border: 3px solid #f3f4f6; border-top: 3px solid #667eea; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+    .social-btn { transition: all 0.3s ease; }
+    .social-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
   </style>
 </head>
-<body class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-  <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-    <h1 class="text-2xl font-bold text-center mb-4 text-blue-600">Web to APK Converter</h1>
-    <form id="apkForm" class="space-y-4">
-      <!-- App Name -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">App Name *</label>
-        <input type="text" id="app_name" class="mt-1 block w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="My App" required>
-      </div>
-      <!-- Package Name -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Package Name *</label>
-        <input type="text" id="package_name" class="mt-1 block w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="com.example.app" required>
-      </div>
-      <!-- Version -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Version *</label>
-        <input type="number" id="version" class="mt-1 block w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" value="1" min="1" required>
-      </div>
-      <!-- Website URL -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Website URL *</label>
-        <input type="url" id="website_url" class="mt-1 block w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com" required>
-      </div>
-      <!-- Theme Color -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Theme Color</label>
-        <input type="color" id="theme_color" class="mt-1 block w-full h-10 border border-gray-300 rounded" value="#3F51B5">
-      </div>
-      <!-- App Icon -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">App Icon (PNG only)</label>
-        <input type="file" id="icon_url" accept="image/png" class="mt-1 block w-full p-2 border border-gray-300 rounded">
-        <img id="icon_preview" class="mt-2 w-16 h-16 object-cover rounded hidden" alt="Icon Preview">
-        <p class="text-xs text-gray-500 mt-1">* Required for valid APK</p>
-      </div>
-      <!-- User Agent -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">User Agent</label>
-        <input type="text" id="user_agent" class="mt-1 block w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" value="NB Android/1.0.0">
-      </div>
-      <!-- Navigation Bar -->
-      <div>
-        <label class="flex items-center space-x-2">
-          <input type="checkbox" id="nav_bar_enabled" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-          <span class="text-sm text-gray-700">Enable Navigation Bar</span>
-        </label>
-        <div id="nav_bar_color_container" class="mt-2 hidden">
-          <label class="block text-sm font-medium text-gray-700">Navigation Color</label>
-          <input type="color" id="nav_bar_color" class="mt-1 block w-full h-10 border border-gray-300 rounded" value="#3F51B5">
-        </div>
-      </div>
-      <!-- Progress Bar -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Progress Bar Style</label>
-        <select id="progress_bar_style" class="mt-1 block w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="None">None</option>
-          <option value="Linear">Linear</option>
-          <option value="Circular">Circular</option>
-        </select>
-        <div id="progress_bar_color_container" class="mt-2 hidden">
-          <label class="block text-sm font-medium text-gray-700">Progress Color</label>
-          <input type="color" id="progress_bar_color" class="mt-1 block w-full h-10 border border-gray-300 rounded" value="#3F51B5">
-        </div>
-      </div>
-      <!-- Features -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Features</label>
-        <div class="mt-2 space-y-2">
-          <label class="flex items-center space-x-2"><input type="checkbox" value="Splash Screen" class="feature h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"> Splash Screen</label>
-          <label class="flex items-center space-x-2"><input type="checkbox" value="Refresh Bar" class="feature h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"> Refresh Bar</label>
-          <label class="flex items-center space-x-2"><input type="checkbox" value="Pull to Refresh" class="feature h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"> Pull to Refresh</label>
-          <label class="flex items-center space-x-2"><input type="checkbox" value="Offline Support" class="feature h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"> Offline Support</label>
-        </div>
-      </div>
-      <button type="submit" id="submitBtn" class="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">Generate APK</button>
-    </form>
-    <div id="progress" class="mt-4 hidden">
-      <div class="w-full bg-gray-200 rounded-full h-2.5">
-        <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
-      </div>
-      <p id="progressText" class="text-sm text-gray-600 mt-1 text-center">Progress: 0%</p>
+<body class="min-h-screen gradient-bg p-4">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="text-center py-8">
+      <h1 class="text-4xl font-bold text-white mb-2">🚀 Web to APK Converter</h1>
+      <p class="text-white text-opacity-90">Convert your website into a native Android app in minutes</p>
     </div>
-    <p id="message" class="mt-4 text-center hidden"></p>
-    <div id="result" class="mt-4 hidden bg-green-50 p-4 rounded border border-green-200">
-      <h2 class="text-lg font-semibold text-green-800 mb-2">Success! Your APK is ready:</h2>
-      <ul class="space-y-2 text-sm">
-        <li><a id="apkLink" class="text-blue-600 hover:underline font-medium" href="#" target="_blank" rel="noopener noreferrer">📱 Download APK</a></li>
-        <li><a id="fullPackageLink" class="text-blue-600 hover:underline font-medium" href="#" target="_blank" rel="noopener noreferrer">📦 Download Full Package</a></li>
-        <li><a id="dashboardLink" class="text-blue-600 hover:underline font-medium" href="#" target="_blank" rel="noopener noreferrer">📊 View Dashboard</a></li>
-      </ul>
+
+    <!-- Auth Section -->
+    <div id="authSection" class="max-w-md mx-auto bg-white rounded-2xl card-shadow p-8 mb-6">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Welcome Back</h2>
+      
+      <!-- Social Login Buttons -->
+      <div class="space-y-3 mb-6">
+        <button onclick="loginWithGoogle()" class="social-btn w-full flex items-center justify-center space-x-3 py-3 px-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          <span class="font-medium text-gray-700">Continue with Google</span>
+        </button>
+        
+        <button onclick="loginWithGitHub()" class="social-btn w-full flex items-center justify-center space-x-3 py-3 px-4 border-2 border-gray-200 rounded-lg hover:border-gray-800 transition">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+          <span class="font-medium text-gray-700">Continue with GitHub</span>
+        </button>
+      </div>
+
+      <div class="relative mb-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-200"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-4 bg-white text-gray-500">Or continue as guest</span>
+        </div>
+      </div>
+
+      <button onclick="continueAsGuest()" class="w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition">
+        Continue as Guest
+      </button>
+
+      <div id="authMessage" class="mt-4 p-3 rounded-lg hidden"></div>
+    </div>
+
+    <!-- User Info Bar (hidden initially) -->
+    <div id="userInfoBar" class="hidden max-w-4xl mx-auto bg-white rounded-xl card-shadow p-4 mb-6 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <img id="userAvatar" src="" alt="User" class="w-10 h-10 rounded-full">
+        <div>
+          <p id="userName" class="font-medium text-gray-800"></p>
+          <p id="userEmail" class="text-sm text-gray-500"></p>
+        </div>
+      </div>
+      <button onclick="logout()" class="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition">
+        Logout
+      </button>
+    </div>
+
+    <!-- Main Form (hidden initially) -->
+    <div id="mainForm" class="hidden max-w-4xl mx-auto bg-white rounded-2xl card-shadow p-8">
+      <form id="apkForm" class="space-y-6">
+        <div class="grid md:grid-cols-2 gap-6">
+          <!-- App Name -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">App Name *</label>
+            <input type="text" id="app_name" class="w-full p-3 border-2 border-gray-200 rounded-lg transition" placeholder="My Awesome App" required>
+          </div>
+
+          <!-- Package Name -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Package Name *</label>
+            <input type="text" id="package_name" class="w-full p-3 border-2 border-gray-200 rounded-lg transition" placeholder="com.example.myapp" required>
+            <p class="text-xs text-gray-500 mt-1">Format: com.company.appname</p>
+          </div>
+
+          <!-- Version -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Version *</label>
+            <input type="number" id="version" class="w-full p-3 border-2 border-gray-200 rounded-lg transition" value="1" min="1" required>
+          </div>
+
+          <!-- Website URL -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Website URL *</label>
+            <input type="url" id="website_url" class="w-full p-3 border-2 border-gray-200 rounded-lg transition" placeholder="https://example.com" required>
+          </div>
+
+          <!-- Theme Color -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Theme Color</label>
+            <div class="flex items-center space-x-2">
+              <input type="color" id="theme_color" class="w-16 h-12 border-2 border-gray-200 rounded-lg cursor-pointer" value="#3F51B5">
+              <input type="text" id="theme_color_hex" class="flex-1 p-3 border-2 border-gray-200 rounded-lg" value="#3F51B5" readonly>
+            </div>
+          </div>
+
+          <!-- User Agent -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">User Agent</label>
+            <input type="text" id="user_agent" class="w-full p-3 border-2 border-gray-200 rounded-lg transition" value="NB Android/1.0.0">
+          </div>
+        </div>
+
+        <!-- App Icon -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">App Icon (PNG, 512x512px recommended) *</label>
+          <div class="flex items-center space-x-4">
+            <label class="flex items-center justify-center w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-purple-500 transition">
+              <input type="file" id="icon_url" accept="image/png" class="hidden">
+              <img id="icon_preview" class="w-full h-full object-cover rounded-lg hidden" alt="Icon">
+              <span id="icon_placeholder" class="text-3xl">📷</span>
+            </label>
+            <div class="flex-1">
+              <p class="text-sm text-gray-600">Upload a PNG image</p>
+              <p class="text-xs text-gray-500 mt-1">Required for a valid APK build</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <label class="flex items-center space-x-3 mb-3">
+            <input type="checkbox" id="nav_bar_enabled" class="w-5 h-5 text-purple-600 rounded">
+            <span class="font-semibold text-gray-700">Enable Navigation Bar</span>
+          </label>
+          <div id="nav_bar_color_container" class="hidden ml-8">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Navigation Color</label>
+            <input type="color" id="nav_bar_color" class="w-16 h-10 border-2 border-gray-200 rounded-lg cursor-pointer" value="#3F51B5">
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Progress Bar Style</label>
+          <select id="progress_bar_style" class="w-full p-3 border-2 border-gray-200 rounded-lg transition">
+            <option value="None">None</option>
+            <option value="Linear" selected>Linear</option>
+            <option value="Circular">Circular</option>
+          </select>
+          <div id="progress_bar_color_container" class="mt-3">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Progress Color</label>
+            <input type="color" id="progress_bar_color" class="w-16 h-10 border-2 border-gray-200 rounded-lg cursor-pointer" value="#3F51B5">
+          </div>
+        </div>
+
+        <!-- Features -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <label class="block text-sm font-semibold text-gray-700 mb-3">App Features</label>
+          <div class="grid md:grid-cols-2 gap-3">
+            <label class="flex items-center space-x-3 p-2 hover:bg-white rounded transition cursor-pointer">
+              <input type="checkbox" value="Splash Screen" class="feature w-5 h-5 text-purple-600 rounded">
+              <span class="text-gray-700">Splash Screen</span>
+            </label>
+            <label class="flex items-center space-x-3 p-2 hover:bg-white rounded transition cursor-pointer">
+              <input type="checkbox" value="Refresh Bar" class="feature w-5 h-5 text-purple-600 rounded">
+              <span class="text-gray-700">Refresh Bar</span>
+            </label>
+            <label class="flex items-center space-x-3 p-2 hover:bg-white rounded transition cursor-pointer">
+              <input type="checkbox" value="Pull to Refresh" class="feature w-5 h-5 text-purple-600 rounded">
+              <span class="text-gray-700">Pull to Refresh</span>
+            </label>
+            <label class="flex items-center space-x-3 p-2 hover:bg-white rounded transition cursor-pointer">
+              <input type="checkbox" value="Offline Support" class="feature w-5 h-5 text-purple-600 rounded">
+              <span class="text-gray-700">Offline Support</span>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" id="submitBtn" class="w-full py-4 px-6 btn-gradient text-white font-bold rounded-lg transition flex items-center justify-center space-x-2">
+          <span>Generate APK</span>
+          <span>🚀</span>
+        </button>
+      </form>
+
+      <!-- Progress Section -->
+      <div id="progress" class="mt-6 hidden">
+        <div class="bg-gray-100 rounded-full h-4 overflow-hidden">
+          <div id="progressBar" class="bg-gradient-to-r from-purple-500 to-blue-500 h-4 transition-all duration-500 ease-out" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between items-center mt-2">
+          <p id="progressText" class="text-sm text-gray-600">Initializing...</p>
+          <span class="loader"></span>
+        </div>
+      </div>
+
+      <!-- Message -->
+      <div id="message" class="mt-4 hidden"></div>
+
+      <!-- Result Section -->
+      <div id="result" class="mt-6 hidden bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border-2 border-green-200">
+        <h2 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+          <span class="text-3xl mr-2">🎉</span>
+          Your APK is Ready!
+        </h2>
+        <div class="grid md:grid-cols-3 gap-4">
+          <a id="apkLink" href="#" target="_blank" class="flex items-center justify-center space-x-2 p-4 bg-white rounded-lg hover:shadow-lg transition">
+            <span class="text-2xl">📱</span>
+            <span class="font-medium text-gray-700">Download APK</span>
+          </a>
+          <a id="fullPackageLink" href="#" target="_blank" class="flex items-center justify-center space-x-2 p-4 bg-white rounded-lg hover:shadow-lg transition">
+            <span class="text-2xl">📦</span>
+            <span class="font-medium text-gray-700">Full Package</span>
+          </a>
+          <a id="dashboardLink" href="#" target="_blank" class="flex items-center justify-center space-x-2 p-4 bg-white rounded-lg hover:shadow-lg transition">
+            <span class="text-2xl">📊</span>
+            <span class="font-medium text-gray-700">Dashboard</span>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
     const API_BASE_URL = 'https://web-to-apk-converter.onrender.com';
     let userSession = null;
+    let currentUser = null;
+
+    // Auth Functions
+    function loginWithGoogle() {
+      showAuthMessage('Google OAuth integration required. Using guest mode...', 'info');
+      setTimeout(continueAsGuest, 1500);
+    }
+
+    function loginWithGitHub() {
+      showAuthMessage('GitHub OAuth integration required. Using guest mode...', 'info');
+      setTimeout(continueAsGuest, 1500);
+    }
+
+    async function continueAsGuest() {
+      currentUser = {
+        name: 'Guest User',
+        email: 'guest@webtoapp.com',
+        avatar: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23667eea"%3E%3Cpath d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/%3E%3C/svg%3E',
+        isGuest: true
+      };
+      showMainApp();
+      await initSession();
+    }
+
+    function logout() {
+      currentUser = null;
+      userSession = null;
+      document.getElementById('authSection').classList.remove('hidden');
+      document.getElementById('mainForm').classList.add('hidden');
+      document.getElementById('userInfoBar').classList.add('hidden');
+      resetForm();
+    }
+
+    function showMainApp() {
+      document.getElementById('authSection').classList.add('hidden');
+      document.getElementById('mainForm').classList.remove('hidden');
+      document.getElementById('userInfoBar').classList.remove('hidden');
+      document.getElementById('userName').textContent = currentUser.name;
+      document.getElementById('userEmail').textContent = currentUser.email;
+      document.getElementById('userAvatar').src = currentUser.avatar;
+    }
+
+    function showAuthMessage(text, type = 'error') {
+      const el = document.getElementById('authMessage');
+      el.textContent = text;
+      el.className = `mt-4 p-3 rounded-lg ${type === 'success' ? 'bg-green-100 text-green-700' : type === 'info' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`;
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.add('hidden'), 5000);
+    }
 
     // Utility Functions
     function showMessage(text, type = 'error') {
-      const messageEl = document.getElementById('message');
-      messageEl.textContent = text;
-      messageEl.className = `mt-4 text-center ${type === 'success' ? 'success' : 'error'}`;
-      showElement('message');
+      const el = document.getElementById('message');
+      el.textContent = text;
+      el.className = `mt-4 p-4 rounded-lg ${type === 'success' ? 'bg-green-100 text-green-700 border-2 border-green-300' : 'bg-red-100 text-red-700 border-2 border-red-300'}`;
+      el.classList.remove('hidden');
     }
 
-    function showElement(id) {
-      document.getElementById(id).classList.remove('hidden');
+    function hideMessage() {
+      document.getElementById('message').classList.add('hidden');
     }
 
-    function hideElement(id) {
-      document.getElementById(id).classList.add('hidden');
-    }
-
-    function setProgress(value) {
+    function setProgress(value, text = '') {
       const progress = Math.min(100, Math.max(0, value));
       document.getElementById('progressBar').style.width = `${progress}%`;
-      document.getElementById('progressText').textContent = `Progress: ${progress.toFixed(1)}%`;
+      document.getElementById('progressText').textContent = text || `Progress: ${progress.toFixed(0)}%`;
     }
 
     function showResult(result) {
       document.getElementById('apkLink').href = result.links.apk;
       document.getElementById('fullPackageLink').href = result.links.full_package;
       document.getElementById('dashboardLink').href = result.links.dashboard;
-      showElement('result');
-      hideElement('progress');
+      document.getElementById('result').classList.remove('hidden');
+      document.getElementById('progress').classList.add('hidden');
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('submitBtn').innerHTML = '<span>Generate APK</span><span>🚀</span>';
     }
 
     function resetForm() {
       const submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Generate APK';
-      hideElement('progress');
-      hideElement('message');
-      hideElement('result');
+      submitBtn.innerHTML = '<span>Generate APK</span><span>🚀</span>';
+      document.getElementById('progress').classList.add('hidden');
+      document.getElementById('result').classList.add('hidden');
+      hideMessage();
       setProgress(0);
     }
 
@@ -156,83 +334,93 @@
         const fileInput = document.getElementById('icon_url');
         const file = fileInput.files[0];
         if (!file) {
-          resolve(null); // Backend will handle missing icon
+          resolve(null);
           return;
         }
         if (file.type !== 'image/png') {
-          showMessage('Icon must be a PNG file.', 'error');
+          showMessage('Icon must be a PNG file', 'error');
           resolve(null);
           return;
         }
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result);
-        reader.onerror = () => resolve(null);
+        reader.onerror = () => {
+          showMessage('Failed to read icon file', 'error');
+          resolve(null);
+        };
         reader.readAsDataURL(file);
       });
     }
 
-    // Initialize Session
+    // Session Management
     async function initSession() {
       if (userSession) return true;
+      
+      setProgress(10, 'Connecting to server...');
+      document.getElementById('progress').classList.remove('hidden');
+
       try {
-        const response = await axios.post(`${API_BASE_URL}/register`, {}, { timeout: 15000 });
+        const response = await axios.post(`${API_BASE_URL}/register`, {}, { timeout: 20000 });
         if (response.data.success) {
           userSession = response.data.result;
+          setProgress(20, 'Session initialized');
           showMessage('Ready to generate APK!', 'success');
+          setTimeout(hideMessage, 3000);
           return true;
         } else {
-          showMessage(response.data.result?.error || 'Session init failed.', 'error');
-          return false;
+          throw new Error(response.data.result?.error || 'Session initialization failed');
         }
       } catch (error) {
-        const errMsg = error.response?.data?.result?.error || error.message || 'Backend connection failed. Retrying...';
-        showMessage(errMsg, 'error');
-        setTimeout(initSession, 5000); // Retry after 5s
-        return false;
+        const errMsg = error.response?.data?.result?.error || error.message || 'Connection failed';
+        showMessage(`Error: ${errMsg}. Retrying...`, 'error');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        return initSession();
+      } finally {
+        document.getElementById('progress').classList.add('hidden');
       }
     }
 
-    // Poll Task with Retry
+    // Task Polling
     function pollTask(taskId) {
       let attempts = 0;
-      const maxAttempts = 120; // 10 min at 5s intervals
+      const maxAttempts = 180;
       const interval = setInterval(async () => {
         attempts++;
+        
         if (attempts >= maxAttempts) {
           clearInterval(interval);
-          showMessage('Generation timed out (10 min). Retrying init...', 'error');
+          showMessage('Build timeout (15 minutes). Please try again.', 'error');
           resetForm();
-          initSession();
           return;
         }
 
         try {
           const response = await axios.get(`${API_BASE_URL}/task/${taskId}`, { timeout: 15000 });
           const taskData = response.data;
-          if (taskData.success !== false) {
-            const progress = taskData.result?.progress || 0;
-            setProgress(progress);
-            if (taskData.result?.is_completed && taskData.result?.links) {
+          
+          if (taskData.success !== false && taskData.result) {
+            const progress = taskData.result.progress || 0;
+            const status = taskData.result.status || 'Processing';
+            setProgress(progress, status);
+
+            if (taskData.result.is_completed && taskData.result.links) {
               clearInterval(interval);
               showResult(taskData.result);
+              showMessage('APK generated successfully!', 'success');
               return;
             }
-            if (taskData.result?.is_failed) {
+
+            if (taskData.result.is_failed) {
               clearInterval(interval);
-              showMessage(taskData.result?.error || 'Task failed. Retrying...', 'error');
+              showMessage(taskData.result.error || 'Build failed. Please check your inputs.', 'error');
               resetForm();
-              initSession();
               return;
             }
           }
         } catch (error) {
-          if (attempts % 10 === 0) {
-            showMessage(`Polling error (attempt ${attempts}). Retrying...`, 'error');
-          }
-          if (attempts === maxAttempts - 1) {
-            showMessage('Final retry failed. Check backend logs.', 'error');
-            resetForm();
-            initSession();
+          console.error('Polling error:', error);
+          if (attempts % 12 === 0) {
+            setProgress(null, `Retrying connection... (${Math.floor(attempts/12)})`);
           }
         }
       }, 5000);
@@ -241,15 +429,20 @@
     // Form Submit
     document.getElementById('apkForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!await initSession()) return;
+      
+      if (!userSession && !await initSession()) {
+        showMessage('Unable to initialize session. Please refresh.', 'error');
+        return;
+      }
 
       const submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Generating APK...';
-      hideElement('message');
-      hideElement('result');
-      showElement('progress');
-      setProgress(0);
+      submitBtn.innerHTML = '<div class="loader mx-auto"></div>';
+      
+      hideMessage();
+      document.getElementById('result').classList.add('hidden');
+      document.getElementById('progress').classList.remove('hidden');
+      setProgress(0, 'Preparing build...');
 
       const formData = {
         app_name: document.getElementById('app_name').value.trim(),
@@ -269,31 +462,43 @@
         features: Array.from(document.querySelectorAll('.feature:checked')).map(cb => cb.value)
       };
 
+      setProgress(30, 'Processing icon...');
       formData.icon_url = await getIconBase64();
 
+      if (!formData.icon_url) {
+        showMessage('Please upload a valid PNG icon (required for APK)', 'error');
+        resetForm();
+        return;
+      }
+
       if (!formData.app_name || !formData.package_name || !formData.website_url) {
-        showMessage('Please fill required fields (*).', 'error');
+        showMessage('Please fill all required fields', 'error');
+        resetForm();
+        return;
+      }
+
+      if (!/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/.test(formData.package_name)) {
+        showMessage('Invalid package name format (use: com.company.app)', 'error');
         resetForm();
         return;
       }
 
       try {
-        const response = await axios.post(`${API_BASE_URL}/generate`, { session: userSession, input: formData }, { timeout: 30000 });
-        if (response.data.success) {
-          const taskId = response.data.result.task_id;
-          if (taskId) {
-            pollTask(taskId);
-          } else {
-            showMessage('No task started. Try again.', 'error');
-            resetForm();
-          }
+        setProgress(50, 'Submitting build request...');
+        const response = await axios.post(`${API_BASE_URL}/generate`, {
+          session: userSession,
+          input: formData
+        }, { timeout: 30000 });
+
+        if (response.data.success && response.data.result?.task_id) {
+          setProgress(60, 'Build started, please wait...');
+          pollTask(response.data.result.task_id);
         } else {
-          showMessage(response.data.result?.error || 'Generation failed.', 'error');
-          resetForm();
+          throw new Error(response.data.result?.error || 'Failed to start build');
         }
       } catch (error) {
-        const errMsg = error.response?.data?.result?.error || error.message || 'Generation error. Check console.';
-        showMessage(errMsg, 'error');
+        const errMsg = error.response?.data?.result?.error || error.message || 'Build request failed';
+        showMessage(`Error: ${errMsg}`, 'error');
         resetForm();
       }
     });
@@ -302,17 +507,25 @@
     document.getElementById('icon_url').addEventListener('change', (e) => {
       const file = e.target.files[0];
       const preview = document.getElementById('icon_preview');
+      const placeholder = document.getElementById('icon_placeholder');
+      
       if (file && file.type === 'image/png') {
         const reader = new FileReader();
         reader.onload = () => {
           preview.src = reader.result;
-          showElement('icon_preview');
+          preview.classList.remove('hidden');
+          placeholder.classList.add('hidden');
         };
         reader.readAsDataURL(file);
       } else {
-        hideElement('icon_preview');
-        if (file) showMessage('Only PNG files supported.', 'error');
+        preview.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        if (file) showMessage('Only PNG files are supported', 'error');
       }
+    });
+
+    document.getElementById('theme_color').addEventListener('input', (e) => {
+      document.getElementById('theme_color_hex').value = e.target.value;
     });
 
     document.getElementById('nav_bar_enabled').addEventListener('change', (e) => {
@@ -323,8 +536,28 @@
       document.getElementById('progress_bar_color_container').classList.toggle('hidden', e.target.value === 'None');
     });
 
-    // Init on Load
-    window.addEventListener('load', initSession);
+    // Auto-generate package name suggestion
+    document.getElementById('app_name').addEventListener('input', (e) => {
+      const appName = e.target.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      const packageInput = document.getElementById('package_name');
+      if (!packageInput.value || packageInput.value.startsWith('com.example.')) {
+        packageInput.value = `com.example.${appName || 'app'}`;
+      }
+    });
+
+    // Validate URL format
+    document.getElementById('website_url').addEventListener('blur', (e) => {
+      let url = e.target.value.trim();
+      if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+        e.target.value = url;
+      }
+    });
+
+    // Initialize
+    window.addEventListener('load', () => {
+      console.log('Web to APK Converter initialized');
+    });
   </script>
 </body>
 </html>
