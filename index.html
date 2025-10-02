@@ -108,16 +108,15 @@
   </div>
 
   <script>
-    const API_BASE_URL = 'https://web-to-apk-converter.onrender.com'; // Backend deployed URL
+    const API_BASE_URL = 'https://web-to-apk-converter.onrender.com';
     let userSession = null;
 
     // Utility Functions
     function showMessage(text, type = 'error') {
       const messageEl = document.getElementById('message');
       messageEl.textContent = text;
-      messageEl.className = `mt-4 text-center ${type}`;
-      document.getElementById(messageEl.classList.contains('error') ? 'message' : 'message').classList.remove('hidden');
-      messageEl.classList.remove('hidden');
+      messageEl.className = `mt-4 text-center ${type === 'success' ? 'success' : 'error'}`;
+      showElement('message');
     }
 
     function showElement(id) {
@@ -143,8 +142,9 @@
     }
 
     function resetForm() {
-      document.getElementById('submitBtn').disabled = false;
-      document.getElementById('submitBtn').textContent = 'Generate APK';
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Generate APK';
       hideElement('progress');
       hideElement('message');
       hideElement('result');
@@ -173,8 +173,9 @@
 
     // Initialize Session
     async function initSession() {
+      if (userSession) return true;
       try {
-        const response = await axios.post(`${API_BASE_URL}/register`, {}, { timeout: 10000 });
+        const response = await axios.post(`${API_BASE_URL}/register`, {}, { timeout: 15000 });
         if (response.data.success) {
           userSession = response.data.result;
           showMessage('Ready to generate APK!', 'success');
@@ -184,29 +185,31 @@
           return false;
         }
       } catch (error) {
-        const errMsg = error.response?.data?.result?.error || error.message || 'Backend connection failed. Check if server is running.';
+        const errMsg = error.response?.data?.result?.error || error.message || 'Backend connection failed. Retrying...';
         showMessage(errMsg, 'error');
+        setTimeout(initSession, 5000); // Retry after 5s
         return false;
       }
     }
 
-    // Poll Task
+    // Poll Task with Retry
     function pollTask(taskId) {
       let attempts = 0;
-      const maxAttempts = 120; // 10 min
+      const maxAttempts = 120; // 10 min at 5s intervals
       const interval = setInterval(async () => {
         attempts++;
         if (attempts >= maxAttempts) {
           clearInterval(interval);
-          showMessage('Generation timed out (10 min). Try again.', 'error');
+          showMessage('Generation timed out (10 min). Retrying init...', 'error');
           resetForm();
+          initSession();
           return;
         }
 
         try {
-          const response = await axios.get(`${API_BASE_URL}/task/${taskId}`, { timeout: 10000 });
+          const response = await axios.get(`${API_BASE_URL}/task/${taskId}`, { timeout: 15000 });
           const taskData = response.data;
-          if (taskData.success !== false) { // Assume success if not explicit fail
+          if (taskData.success !== false) {
             const progress = taskData.result?.progress || 0;
             setProgress(progress);
             if (taskData.result?.is_completed && taskData.result?.links) {
@@ -216,15 +219,21 @@
             }
             if (taskData.result?.is_failed) {
               clearInterval(interval);
-              showMessage(taskData.result?.error || 'Task failed.', 'error');
+              showMessage(taskData.result?.error || 'Task failed. Retrying...', 'error');
               resetForm();
+              initSession();
               return;
             }
           }
         } catch (error) {
-          clearInterval(interval);
-          showMessage(error.response?.data?.result?.error || 'Polling error.', 'error');
-          resetForm();
+          if (attempts % 10 === 0) {
+            showMessage(`Polling error (attempt ${attempts}). Retrying...`, 'error');
+          }
+          if (attempts === maxAttempts - 1) {
+            showMessage('Final retry failed. Check backend logs.', 'error');
+            resetForm();
+            initSession();
+          }
         }
       }, 5000);
     }
@@ -232,10 +241,7 @@
     // Form Submit
     document.getElementById('apkForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!userSession) {
-        showMessage('Session not ready. Refresh page.', 'error');
-        return;
-      }
+      if (!await initSession()) return;
 
       const submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = true;
@@ -245,7 +251,6 @@
       showElement('progress');
       setProgress(0);
 
-      // Collect Data
       const formData = {
         app_name: document.getElementById('app_name').value.trim(),
         package_name: document.getElementById('package_name').value.trim(),
@@ -264,10 +269,8 @@
         features: Array.from(document.querySelectorAll('.feature:checked')).map(cb => cb.value)
       };
 
-      // Icon
       formData.icon_url = await getIconBase64();
 
-      // Client Validation
       if (!formData.app_name || !formData.package_name || !formData.website_url) {
         showMessage('Please fill required fields (*).', 'error');
         resetForm();
