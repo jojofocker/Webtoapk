@@ -8,8 +8,8 @@
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
     .hidden { display: none; }
-    .error { color: red; }
-    .success { color: green; }
+    .error { color: #ef4444; }
+    .success { color: #10b981; }
     .progress-bar { transition: width 0.3s ease; }
   </style>
 </head>
@@ -19,229 +19,105 @@
     <form id="apkForm" class="space-y-4">
       <!-- App Name -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">App Name</label>
-        <input type="text" id="app_name" class="mt-1 block w-full p-2 border rounded" placeholder="My App" required>
+        <label class="block text-sm font-medium text-gray-700">App Name *</label>
+        <input type="text" id="app_name" class="mt-1 block w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="My App" required>
       </div>
       <!-- Package Name -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">Package Name</label>
-        <input type="text" id="package_name" class="mt-1 block w-full p-2 border rounded" placeholder="com.example.app" required>
+        <label class="block text-sm font-medium text-gray-700">Package Name *</label>
+        <input type="text" id="package_name" class="mt-1 block w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="com.example.app" required>
       </div>
       <!-- Version -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">Version</label>
-        <input type="number" id="version" class="mt-1 block w-full p-2 border rounded" value="1" min="1" required>
+        <label class="block text-sm font-medium text-gray-700">Version *</label>
+        <input type="number" id="version" class="mt-1 block w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" value="1" min="1" required>
       </div>
       <!-- Website URL -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">Website URL</label>
-        <input type="url" id="website_url" class="mt-1 block w-full p-2 border rounded" placeholder="https://example.com" required>
+        <label class="block text-sm font-medium text-gray-700">Website URL *</label>
+        <input type="url" id="website_url" class="mt-1 block w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com" required>
       </div>
       <!-- Theme Color -->
       <div>
         <label class="block text-sm font-medium text-gray-700">Theme Color</label>
-        <input type="color" id="theme_color" class="mt-1 block w-full h-10 border rounded" value="#3F51B5">
+        <input type="color" id="theme_color" class="mt-1 block w-full h-10 border border-gray-300 rounded" value="#3F51B5">
       </div>
       <!-- App Icon -->
       <div>
-        <label class="block text-sm font-medium text-gray-700">App Icon (PNG)</label>
-        <input type="file" id="icon_url" accept="image/png" class="mt-1 block w-full p-2 border rounded">
-        <img id="icon_preview" class="mt-2 w-16 h-16 object-cover rounded hidden">
+        <label class="block text-sm font-medium text-gray-700">App Icon (PNG only)</label>
+        <input type="file" id="icon_url" accept="image/png" class="mt-1 block w-full p-2 border border-gray-300 rounded">
+        <img id="icon_preview" class="mt-2 w-16 h-16 object-cover rounded hidden" alt="Icon Preview">
+        <p class="text-xs text-gray-500 mt-1">* Required for valid APK</p>
       </div>
       <!-- User Agent -->
       <div>
         <label class="block text-sm font-medium text-gray-700">User Agent</label>
-        <input type="text" id="user_agent" class="mt-1 block w-full p-2 border rounded" value="NB Android/1.0.0">
+        <input type="text" id="user_agent" class="mt-1 block w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" value="NB Android/1.0.0">
       </div>
       <!-- Navigation Bar -->
       <div>
         <label class="flex items-center space-x-2">
-          <input type="checkbox" id="nav_bar_enabled" class="h-4 w-4">
+          <input type="checkbox" id="nav_bar_enabled" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
           <span class="text-sm text-gray-700">Enable Navigation Bar</span>
         </label>
-        <div id="nav_bar_color" class="mt-2 hidden">
-          <label class="block text-sm font-medium text-gray-700">Color</label>
-          <input type="color" class="mt-1 block w-full h-10 border rounded" value="#3F51B5">
+        <div id="nav_bar_color_container" class="mt-2 hidden">
+          <label class="block text-sm font-medium text-gray-700">Navigation Color</label>
+          <input type="color" id="nav_bar_color" class="mt-1 block w-full h-10 border border-gray-300 rounded" value="#3F51B5">
         </div>
       </div>
       <!-- Progress Bar -->
       <div>
         <label class="block text-sm font-medium text-gray-700">Progress Bar Style</label>
-        <select id="progress_bar_style" class="mt-1 block w-full p-2 border rounded">
+        <select id="progress_bar_style" class="mt-1 block w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="None">None</option>
           <option value="Linear">Linear</option>
           <option value="Circular">Circular</option>
         </select>
-        <div id="progress_bar_color" class="mt-2 hidden">
-          <label class="block text-sm font-medium text-gray-700">Color</label>
-          <input type="color" class="mt-1 block w-full h-10 border rounded" value="#3F51B5">
+        <div id="progress_bar_color_container" class="mt-2 hidden">
+          <label class="block text-sm font-medium text-gray-700">Progress Color</label>
+          <input type="color" id="progress_bar_color" class="mt-1 block w-full h-10 border border-gray-300 rounded" value="#3F51B5">
         </div>
       </div>
       <!-- Features -->
       <div>
         <label class="block text-sm font-medium text-gray-700">Features</label>
         <div class="mt-2 space-y-2">
-          <label class="flex items-center space-x-2"><input type="checkbox" value="Splash Screen" class="feature"> Splash Screen</label>
-          <label class="flex items-center space-x-2"><input type="checkbox" value="Refresh Bar" class="feature"> Refresh Bar</label>
-          <label class="flex items-center space-x-2"><input type="checkbox" value="Pull to Refresh" class="feature"> Pull to Refresh</label>
-          <label class="flex items-center space-x-2"><input type="checkbox" value="Offline Support" class="feature"> Offline Support</label>
+          <label class="flex items-center space-x-2"><input type="checkbox" value="Splash Screen" class="feature h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"> Splash Screen</label>
+          <label class="flex items-center space-x-2"><input type="checkbox" value="Refresh Bar" class="feature h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"> Refresh Bar</label>
+          <label class="flex items-center space-x-2"><input type="checkbox" value="Pull to Refresh" class="feature h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"> Pull to Refresh</label>
+          <label class="flex items-center space-x-2"><input type="checkbox" value="Offline Support" class="feature h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"> Offline Support</label>
         </div>
       </div>
-      <button type="submit" id="submitBtn" class="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700">Generate APK</button>
+      <button type="submit" id="submitBtn" class="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">Generate APK</button>
     </form>
     <div id="progress" class="mt-4 hidden">
       <div class="w-full bg-gray-200 rounded-full h-2.5">
-        <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+        <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
       </div>
-      <p id="progressText" class="text-sm text-gray-700 mt-1 text-center">Progress: 0%</p>
+      <p id="progressText" class="text-sm text-gray-600 mt-1 text-center">Progress: 0%</p>
     </div>
-    <p id="message" class="mt-4 text-center"></p>
-    <div id="result" class="mt-4 hidden">
-      <h2 class="text-lg font-semibold text-green-600">Success!</h2>
-      <ul class="mt-2 space-y-2">
-        <li><a id="apkLink" class="text-blue-600 hover:underline" target="_blank">Download APK</a></li>
-        <li><a id="fullPackageLink" class="text-blue-600 hover:underline" target="_blank">Download Full Package</a></li>
-        <li><a id="dashboardLink" class="text-blue-600 hover:underline" target="_blank">View Dashboard</a></li>
+    <p id="message" class="mt-4 text-center hidden"></p>
+    <div id="result" class="mt-4 hidden bg-green-50 p-4 rounded border border-green-200">
+      <h2 class="text-lg font-semibold text-green-800 mb-2">Success! Your APK is ready:</h2>
+      <ul class="space-y-2 text-sm">
+        <li><a id="apkLink" class="text-blue-600 hover:underline font-medium" href="#" target="_blank" rel="noopener noreferrer">📱 Download APK</a></li>
+        <li><a id="fullPackageLink" class="text-blue-600 hover:underline font-medium" href="#" target="_blank" rel="noopener noreferrer">📦 Download Full Package</a></li>
+        <li><a id="dashboardLink" class="text-blue-600 hover:underline font-medium" href="#" target="_blank" rel="noopener noreferrer">📊 View Dashboard</a></li>
       </ul>
     </div>
   </div>
 
   <script>
-    const API_BASE_URL = 'https://web-to-apk-converter.onrender.com'; // Replace with deployed backend URL, e.g., https://web-to-apk-converter.onrender.com
-    let session = null;
-
-    // Initialize
-    async function init() {
-      try {
-        const response = await axios.post(`${API_BASE_URL}/register`);
-        if (response.data.success) {
-          session = response.data.result;
-          showMessage('Session initialized successfully.', 'success');
-        } else {
-          showMessage(response.data.result.error || 'Failed to initialize.', 'error');
-        }
-      } catch (error) {
-        showMessage(error.response?.data?.result?.error || 'Network error. Check backend.', 'error');
-      }
-    }
-
-    // Form Submission
-    document.getElementById('apkForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const submitBtn = document.getElementById('submitBtn');
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Generating...';
-      hideElement('message');
-      hideElement('result');
-      showElement('progress');
-      setProgress(0);
-
-      const formData = {
-        app_name: document.getElementById('app_name').value.trim(),
-        package_name: document.getElementById('package_name').value.trim(),
-        version: document.getElementById('version').value,
-        website_url: document.getElementById('website_url').value,
-        theme_color: document.getElementById('theme_color').value,
-        icon_url: await getIconBase64(),
-        user_agent: document.getElementById('user_agent').value,
-        navigation_bar: {
-          enabled: document.getElementById('nav_bar_enabled').checked,
-          color: document.getElementById('nav_bar_color').querySelector('input').value
-        },
-        progress_bar: {
-          style: document.getElementById('progress_bar_style').value,
-          color: document.getElementById('progress_bar_color').querySelector('input').value
-        },
-        features: Array.from(document.querySelectorAll('.feature:checked')).map(cb => cb.value)
-      };
-
-      if (!session) {
-        showMessage('Session not initialized. Try refreshing.', 'error');
-        resetForm();
-        return;
-      }
-
-      try {
-        const response = await axios.post(`${API_BASE_URL}/generate`, { session, input: formData });
-        if (response.data.success) {
-          pollTask(response.data.result.task_id);
-        } else {
-          showMessage(response.data.result.error || 'Generation failed.', 'error');
-          resetForm();
-        }
-      } catch (error) {
-        showMessage(error.response?.data?.result?.error || 'API error. Check network., 'error');
-        resetForm();
-      }
-    });
-
-    // Poll Task Progress
-    async function pollTask(taskId) {
-      let attempts = 0;
-      const maxAttempts = 120; // ~10 minutes at 5s intervals
-
-      const interval = setInterval(async () => {
-        if (attempts >= maxAttempts) {
-          clearInterval(interval);
-          showMessage('Timeout. Task took too long.', 'error');
-          resetForm();
-          return;
-        }
-
-        try {
-          const response = await axios.get(`${API_BASE_URL}/task/${taskId}`);
-          const task = response.data;
-          setProgress(task.result?.progress || 0);
-
-          if (task.result?.is_completed || task.result?.is_failed) {
-            clearInterval(interval);
-            if (task.result?.is_completed && task.result?.links) {
-              showResult(task.result);
-            } else {
-              showMessage(task.result?.error || 'Task failed.', 'error');
-            }
-            resetForm();
-          }
-        } catch (error) {
-          clearInterval(interval);
-          showMessage(error.response?.data?.result?.error || 'Polling failed., 'error');
-          resetForm();
-        }
-        attempts++;
-      }, 5000);
-    }
+    const API_BASE_URL = 'https://web-to-apk-converter.onrender.com'; // Backend deployed URL
+    let userSession = null;
 
     // Utility Functions
-    function getIconBase64() {
-      return new Promise((resolve) => {
-        const file = document.getElementById('icon_url').files[0];
-        if (!file) return resolve(null);
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function setProgress(progress) {
-      const progressBar = document.getElementById('progressBar');
-      const progressText = document.getElementById('progressText');
-      progress = Math.min(100, Math.max(0, progress));
-      progressBar.style.width = `${progress}%`;
-      progressText.textContent = `Progress: ${progress.toFixed(1)}%`;
-    }
-
     function showMessage(text, type = 'error') {
-      const message = document.getElementById('message');
-      message.textContent = text;
-      message.className = `mt-4 text-center ${type === 'success' ? 'success' : 'error'}`;
-      showElement('message');
-    }
-
-    function showResult(result) {
-      document.getElementById('apkLink').href = result.links.apk;
-      document.getElementById('fullPackageLink').href = result.links.full_package;
-      document.getElementById('dashboardLink').href = result.links.dashboard;
-      showElement('result');
+      const messageEl = document.getElementById('message');
+      messageEl.textContent = text;
+      messageEl.className = `mt-4 text-center ${type}`;
+      document.getElementById(messageEl.classList.contains('error') ? 'message' : 'message').classList.remove('hidden');
+      messageEl.classList.remove('hidden');
     }
 
     function showElement(id) {
@@ -252,15 +128,172 @@
       document.getElementById(id).classList.add('hidden');
     }
 
+    function setProgress(value) {
+      const progress = Math.min(100, Math.max(0, value));
+      document.getElementById('progressBar').style.width = `${progress}%`;
+      document.getElementById('progressText').textContent = `Progress: ${progress.toFixed(1)}%`;
+    }
+
+    function showResult(result) {
+      document.getElementById('apkLink').href = result.links.apk;
+      document.getElementById('fullPackageLink').href = result.links.full_package;
+      document.getElementById('dashboardLink').href = result.links.dashboard;
+      showElement('result');
+      hideElement('progress');
+    }
+
     function resetForm() {
-      const submitBtn = document.getElementById('submitBtn');
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Generate APK';
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('submitBtn').textContent = 'Generate APK';
       hideElement('progress');
       hideElement('message');
       hideElement('result');
       setProgress(0);
     }
+
+    async function getIconBase64() {
+      return new Promise((resolve) => {
+        const fileInput = document.getElementById('icon_url');
+        const file = fileInput.files[0];
+        if (!file) {
+          resolve(null); // Backend will handle missing icon
+          return;
+        }
+        if (file.type !== 'image/png') {
+          showMessage('Icon must be a PNG file.', 'error');
+          resolve(null);
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Initialize Session
+    async function initSession() {
+      try {
+        const response = await axios.post(`${API_BASE_URL}/register`, {}, { timeout: 10000 });
+        if (response.data.success) {
+          userSession = response.data.result;
+          showMessage('Ready to generate APK!', 'success');
+          return true;
+        } else {
+          showMessage(response.data.result?.error || 'Session init failed.', 'error');
+          return false;
+        }
+      } catch (error) {
+        const errMsg = error.response?.data?.result?.error || error.message || 'Backend connection failed. Check if server is running.';
+        showMessage(errMsg, 'error');
+        return false;
+      }
+    }
+
+    // Poll Task
+    function pollTask(taskId) {
+      let attempts = 0;
+      const maxAttempts = 120; // 10 min
+      const interval = setInterval(async () => {
+        attempts++;
+        if (attempts >= maxAttempts) {
+          clearInterval(interval);
+          showMessage('Generation timed out (10 min). Try again.', 'error');
+          resetForm();
+          return;
+        }
+
+        try {
+          const response = await axios.get(`${API_BASE_URL}/task/${taskId}`, { timeout: 10000 });
+          const taskData = response.data;
+          if (taskData.success !== false) { // Assume success if not explicit fail
+            const progress = taskData.result?.progress || 0;
+            setProgress(progress);
+            if (taskData.result?.is_completed && taskData.result?.links) {
+              clearInterval(interval);
+              showResult(taskData.result);
+              return;
+            }
+            if (taskData.result?.is_failed) {
+              clearInterval(interval);
+              showMessage(taskData.result?.error || 'Task failed.', 'error');
+              resetForm();
+              return;
+            }
+          }
+        } catch (error) {
+          clearInterval(interval);
+          showMessage(error.response?.data?.result?.error || 'Polling error.', 'error');
+          resetForm();
+        }
+      }, 5000);
+    }
+
+    // Form Submit
+    document.getElementById('apkForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!userSession) {
+        showMessage('Session not ready. Refresh page.', 'error');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Generating APK...';
+      hideElement('message');
+      hideElement('result');
+      showElement('progress');
+      setProgress(0);
+
+      // Collect Data
+      const formData = {
+        app_name: document.getElementById('app_name').value.trim(),
+        package_name: document.getElementById('package_name').value.trim(),
+        version: parseInt(document.getElementById('version').value),
+        website_url: document.getElementById('website_url').value.trim(),
+        theme_color: document.getElementById('theme_color').value,
+        user_agent: document.getElementById('user_agent').value.trim(),
+        navigation_bar: {
+          enabled: document.getElementById('nav_bar_enabled').checked,
+          color: document.getElementById('nav_bar_color').value
+        },
+        progress_bar: {
+          style: document.getElementById('progress_bar_style').value,
+          color: document.getElementById('progress_bar_color').value
+        },
+        features: Array.from(document.querySelectorAll('.feature:checked')).map(cb => cb.value)
+      };
+
+      // Icon
+      formData.icon_url = await getIconBase64();
+
+      // Client Validation
+      if (!formData.app_name || !formData.package_name || !formData.website_url) {
+        showMessage('Please fill required fields (*).', 'error');
+        resetForm();
+        return;
+      }
+
+      try {
+        const response = await axios.post(`${API_BASE_URL}/generate`, { session: userSession, input: formData }, { timeout: 30000 });
+        if (response.data.success) {
+          const taskId = response.data.result.task_id;
+          if (taskId) {
+            pollTask(taskId);
+          } else {
+            showMessage('No task started. Try again.', 'error');
+            resetForm();
+          }
+        } else {
+          showMessage(response.data.result?.error || 'Generation failed.', 'error');
+          resetForm();
+        }
+      } catch (error) {
+        const errMsg = error.response?.data?.result?.error || error.message || 'Generation error. Check console.';
+        showMessage(errMsg, 'error');
+        resetForm();
+      }
+    });
 
     // Event Listeners
     document.getElementById('icon_url').addEventListener('change', (e) => {
@@ -275,20 +308,20 @@
         reader.readAsDataURL(file);
       } else {
         hideElement('icon_preview');
-        showMessage('Please upload a PNG file.', 'error');
+        if (file) showMessage('Only PNG files supported.', 'error');
       }
     });
 
     document.getElementById('nav_bar_enabled').addEventListener('change', (e) => {
-      document.getElementById('nav_bar_color').classList.toggle('hidden', !e.target.checked);
+      document.getElementById('nav_bar_color_container').classList.toggle('hidden', !e.target.checked);
     });
 
     document.getElementById('progress_bar_style').addEventListener('change', (e) => {
-      document.getElementById('progress_bar_color').classList.toggle('hidden', e.target.value === 'None');
+      document.getElementById('progress_bar_color_container').classList.toggle('hidden', e.target.value === 'None');
     });
 
-    // Initialize on load
-    window.onload = init;
+    // Init on Load
+    window.addEventListener('load', initSession);
   </script>
 </body>
 </html>
